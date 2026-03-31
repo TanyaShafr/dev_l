@@ -185,6 +185,36 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 #notes-panel.show{transform:translateY(0)}
 #notes-toggle-x{position:fixed;bottom:72px;right:24px;z-index:100;background:rgba(6,20,40,.9);border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-size:10px;color:var(--muted);font-family:'Orbitron',sans-serif;cursor:pointer;transition:all .2s;letter-spacing:1px}
 #notes-toggle:hover{border-color:var(--a);color:var(--a)}
+
+/* Стили для видео на 3-м слайде */
+.video-container {
+  position: relative;
+  width: 80%;
+  max-width: 900px;
+  aspect-ratio: 16 / 9;
+  background: #000;
+  border: 2px solid var(--a);
+  border-radius: var(--r);
+  overflow: hidden;
+  box-shadow: 0 0 30px rgba(56, 189, 248, 0.3);
+}
+
+.video-container video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Видео заполнит контейнер */
+}
+
+/* Эффект помех поверх видео (опционально) */
+.video-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), 
+              linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+  background-size: 100% 4px, 3px 100%;
+  opacity: 0.3;
+}
 </style>
 </head>
 <body>
@@ -225,24 +255,24 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 </div>
 
 <!-- ─── S3: БАЙТ И РЭЙ ─── -->
-<div class="slide" id="s3" data-notes="Байт выглядит испуганным, поскуливает. Рэй указывает на зрителей.">
+<<div class="slide" id="s3" data-notes="Видео-инструкция от Рэя и Байта. Нажмите Play, если видео не запустилось автоматически.">
   <div class="city-bg city-dark"></div>
   <div class="slide-num">03 / 24</div>
-  <div class="heroes">
-    <div class="hero-box">
-      <span style="font-size:clamp(70px,10vw,110px);animation:flt 1.8s .3s ease-in-out infinite alternate;display:block;filter:drop-shadow(0 0 20px rgba(248,113,113,.4))">🤖</span>
-      <div class="name">РЭЙ</div>
-    </div>
-    <div class="hero-box">
-      <span style="font-size:clamp(60px,8vw,90px);animation:flt 2.2s .1s ease-in-out infinite alternate;display:block;filter:drop-shadow(0 0 16px rgba(251,191,36,.4))">🐕</span>
-      <div class="name">БАЙТ</div>
-    </div>
+  
+  <div class="label">Входящий видеопоток</div>
+  
+  <div class="video-container">
+    <!-- Замените 'your-video.mp4' на путь к вашему файлу -->
+    <video id="slide-video" playsinline controls>
+      <source src="h'q 2.mp4" type="video/mp4">
+      Ваш браузер не поддерживает видео.
+    </video>
+    <div class="video-overlay"></div>
   </div>
+
   <div style="height:20px"></div>
-  <div class="speech-bubble">
-    «Нам нужны те, кто умеет <strong style="color:var(--amber)">думать, считать</strong> и говорить <strong style="color:var(--green)">по-английски</strong>.<br>
-    Три группы — три части пароля.<br>
-    <strong style="color:var(--a)">Только вместе вы вернёте городу его слово!</strong>»
+  <div class="sub" style="font-size: 18px; color: var(--a)">
+    <span class="glow-text">● REC</span> ПРЯМОЕ ВКЛЮЧЕНИЕ: ШТАБ СПАСЕНИЯ
   </div>
 </div>
 
