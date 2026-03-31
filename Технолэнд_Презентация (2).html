@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Операция «Технолэнд» — Презентация</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ─── RESET & BASE ──────────────────────────────────────────────────────────── */
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#020b18;
+  --panel:#061428;
+  --border:#0e2a4a;
+  --a:#38bdf8;
+  --glow:#7dd3fc;
+  --green:#34d399;
+  --amber:#fbbf24;
+  --purple:#a78bfa;
+  --hot:#f87171;
+  --text:#dbeafe;
+  --muted:#2a5a7a;
+  --r:16px;
+}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:'Nunito',sans-serif}
+
+/* ─── STARS ──────────────────────────────────────────────────────────────────── */
+#stars-bg{position:fixed;inset:0;z-index:0;pointer-events:none}
+.star{position:absolute;border-radius:50%;background:#fff;animation:twinkle linear infinite}
+@keyframes twinkle{0%,100%{opacity:.05}50%{opacity:.8}}
+
+/* ─── SLIDE ENGINE ───────────────────────────────────────────────────────────── */
+#deck{position:relative;z-index:1;width:100vw;height:100vh;overflow:hidden}
+.slide{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:50px 100px;
+  opacity:0;pointer-events:none;
+  transition:opacity .5s ease, transform .5s ease;
+  transform:translateY(30px);
+}
+.slide.active{opacity:1;pointer-events:all;transform:translateY(0)}
+.slide.exit{opacity:0;transform:translateY(-30px)}
+
+/* ─── NAV ───────────────────────────────────────────────────────────────────── */
+#nav{display:none}
+#nav-prev,#nav-next{position:fixed;top:50%;transform:translateY(-50%);z-index:100}
+#nav-prev{left:14px}#nav-next{right:14px}
+.side-btn{width:52px;height:52px;border-radius:50%;background:rgba(6,20,40,.6);
+  border:1.5px solid var(--border);color:var(--a);font-size:26px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:all .2s;backdrop-filter:blur(8px)}
+.side-btn:hover{background:rgba(56,189,248,.2);border-color:var(--a)}
+.side-btn:disabled{opacity:.15;cursor:default}
+#slide-info{position:fixed;bottom:14px;right:18px;font-family:'Orbitron',sans-serif;
+  font-size:14px;color:var(--muted);background:rgba(6,20,40,.5);
+  padding:4px 12px;border-radius:16px;backdrop-filter:blur(4px)}
+
+
+
+
+
+/* progress dots */
+#dots{display:none}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--border);cursor:pointer;transition:all .3s}
+.dot.active-dot{background:var(--a);box-shadow:0 0 6px var(--a)}
+.dot.done-dot{background:var(--green)}
+
+/* ─── KEYBOARD HINT ─────────────────────────────────────────────────────────── */
+#kbhint{position:fixed;top:20px;right:24px;font-size:11px;color:var(--muted);font-family:'Orbitron',sans-serif;letter-spacing:1px;opacity:.5}
+
+/* ─── SLIDE NUMBER BADGE ────────────────────────────────────────────────────── */
+.slide-num{
+  position:absolute;top:24px;left:36px;
+  font-family:'Orbitron',sans-serif;font-size:15px;letter-spacing:3px;color:var(--muted);
+}
+
+/* ─── COMMON ELEMENTS ───────────────────────────────────────────────────────── */
+.hero-emoji{font-size:clamp(60px,10vw,110px);display:block;line-height:1;filter:drop-shadow(0 0 24px rgba(56,189,248,.6));animation:flt 2s ease-in-out infinite alternate}
+@keyframes flt{from{transform:translateY(0)}to{transform:translateY(-12px)}}
+.mega{font-family:'Orbitron',sans-serif;font-size:clamp(42px,5.5vw,80px);font-weight:900;line-height:1.1;text-align:center}
+.sub{font-size:clamp(20px,2.2vw,30px);line-height:1.6;text-align:center;max-width:900px;color:var(--text)}
+.label{font-family:'Orbitron',sans-serif;font-size:15px;letter-spacing:4px;color:var(--muted);text-transform:uppercase;margin-bottom:10px}
+.speech-bubble{
+  background:rgba(56,189,248,.07);border:1.5px solid rgba(56,189,248,.3);
+  border-radius:var(--r);padding:28px 40px;max-width:900px;
+  font-size:clamp(20px,2vw,28px);font-style:italic;line-height:1.7;text-align:center;
+  position:relative;
+}
+.speech-bubble::before{
+  content:'';position:absolute;bottom:-12px;left:50%;transform:translateX(-50%);
+  border:12px solid transparent;border-top-color:rgba(56,189,248,.3);
+}
+.chip{display:inline-flex;align-items:center;gap:8px;background:rgba(56,189,248,.1);border:1px solid rgba(56,189,248,.3);border-radius:20px;padding:7px 20px;font-size:16px;font-family:'Orbitron',sans-serif;letter-spacing:1px;color:var(--a)}
+.glow-text{text-shadow:0 0 30px rgba(56,189,248,.7)}
+.green-text{color:var(--green);text-shadow:0 0 20px rgba(52,211,153,.5)}
+.amber-text{color:var(--amber);text-shadow:0 0 20px rgba(251,191,36,.5)}
+.purple-text{color:var(--purple)}
+
+/* city silhouette */
+.city-bg{position:absolute;bottom:0;left:0;right:0;height:200px;opacity:.12;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 200'%3E%3Crect x='0' y='80' width='60' height='120' fill='%2338bdf8'/%3E%3Crect x='70' y='40' width='40' height='160' fill='%2338bdf8'/%3E%3Crect x='120' y='60' width='80' height='140' fill='%2338bdf8'/%3E%3Crect x='210' y='20' width='50' height='180' fill='%2338bdf8'/%3E%3Crect x='270' y='70' width='70' height='130' fill='%2338bdf8'/%3E%3Crect x='350' y='30' width='45' height='170' fill='%2338bdf8'/%3E%3Crect x='405' y='55' width='90' height='145' fill='%2338bdf8'/%3E%3Crect x='505' y='10' width='55' height='190' fill='%2338bdf8'/%3E%3Crect x='570' y='50' width='75' height='150' fill='%2338bdf8'/%3E%3Crect x='655' y='35' width='60' height='165' fill='%2338bdf8'/%3E%3Crect x='725' y='65' width='85' height='135' fill='%2338bdf8'/%3E%3Crect x='820' y='25' width='50' height='175' fill='%2338bdf8'/%3E%3Crect x='880' y='45' width='70' height='155' fill='%2338bdf8'/%3E%3Crect x='960' y='15' width='55' height='185' fill='%2338bdf8'/%3E%3Crect x='1025' y='60' width='80' height='140' fill='%2338bdf8'/%3E%3Crect x='1115' y='40' width='45' height='160' fill='%2338bdf8'/%3E%3Crect x='1165' y='70' width='35' height='130' fill='%2338bdf8'/%3E%3C/svg%3E") bottom/cover no-repeat;pointer-events:none}
+.city-dark .city-bg{filter:grayscale(1)}
+
+/* ─── SPECIFIC SLIDE STYLES ─────────────────────────────────────────────────── */
+
+/* S1 — alert screen */
+.alert-ring{width:260px;height:260px;border-radius:50%;border:3px solid var(--hot);box-shadow:0 0 40px var(--hot),inset 0 0 40px rgba(248,113,113,.2);display:flex;align-items:center;justify-content:center;font-size:80px;animation:pulse-ring 1.2s ease-in-out infinite}
+@keyframes pulse-ring{0%,100%{box-shadow:0 0 20px var(--hot),inset 0 0 20px rgba(248,113,113,.1)}50%{box-shadow:0 0 60px var(--hot),0 0 100px rgba(248,113,113,.3),inset 0 0 60px rgba(248,113,113,.3)}}
+
+/* S7 — dark city */
+.dark-city-wrap{display:flex;gap:3px;align-items:flex-end;height:180px;justify-content:center;filter:grayscale(1);opacity:.5}
+.city-building{background:linear-gradient(180deg,#1a2a3a,#0a1520);border:1px solid #1a3a5a;border-bottom:none;position:relative}
+.city-window{width:6px;height:6px;background:#0a1a2a;border-radius:1px;position:absolute}
+
+/* lights-on city */
+.bright-city-wrap .city-building{background:linear-gradient(180deg,#1a4a8a,#0a2040);border-color:#2a6aaa}
+.bright-city-wrap .city-window{background:rgba(255,220,80,.8);box-shadow:0 0 6px rgba(255,220,80,.6)}
+
+/* word reveal */
+.word-reveal{display:flex;gap:20px;justify-content:center;flex-wrap:wrap}
+.word-card{
+  background:rgba(56,189,248,.08);border:2px solid rgba(56,189,248,.3);
+  border-radius:var(--r);padding:24px 44px;
+  font-family:'Orbitron',sans-serif;font-size:clamp(28px,4vw,56px);
+  font-weight:900;color:var(--a);
+  animation:wordPop .6s cubic-bezier(.34,1.56,.64,1) both;
+}
+.word-card:nth-child(2){animation-delay:.15s;border-color:rgba(167,139,250,.4);color:var(--purple)}
+.word-card:nth-child(3){animation-delay:.3s;border-color:rgba(52,211,153,.4);color:var(--green)}
+@keyframes wordPop{from{opacity:0;transform:scale(.3) rotate(-10deg)}to{opacity:1;transform:scale(1) rotate(0)}}
+
+/* command list */
+.cmd-list{display:flex;flex-direction:column;gap:8px;width:100%;max-width:520px}
+.cmd-row{display:flex;align-items:center;gap:12px;background:rgba(56,189,248,.05);border:1px solid var(--border);border-radius:10px;padding:10px 16px;animation:slideIn .4s ease both}
+.cmd-row:nth-child(1){animation-delay:.05s}.cmd-row:nth-child(2){animation-delay:.1s}.cmd-row:nth-child(3){animation-delay:.15s}.cmd-row:nth-child(4){animation-delay:.2s}.cmd-row:nth-child(5){animation-delay:.25s}.cmd-row:nth-child(6){animation-delay:.3s}.cmd-row:nth-child(7){animation-delay:.35s}
+@keyframes slideIn{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:translateX(0)}}
+.cmd-en{font-family:'Orbitron',sans-serif;font-size:22px;color:var(--a);font-weight:700;min-width:200px}
+.cmd-ru{font-size:20px;color:var(--muted)}
+
+/* code display */
+.code-display{display:flex;gap:10px;justify-content:center}
+.code-cell{width:110px;height:130px;background:rgba(56,189,248,.07);border:2px solid var(--border);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;animation:codePop .5s cubic-bezier(.34,1.56,.64,1) both}
+.code-cell:nth-child(1){animation-delay:.0s}.code-cell:nth-child(2){animation-delay:.08s}.code-cell:nth-child(3){animation-delay:.16s}.code-cell:nth-child(4){animation-delay:.24s}.code-cell:nth-child(5){animation-delay:.32s}.code-cell:nth-child(6){animation-delay:.4s}
+.code-cell.lit{background:rgba(52,211,153,.12);border-color:var(--green)}
+.code-n{font-size:15px;color:var(--muted);font-family:'Orbitron',sans-serif}
+.code-v{font-family:'Orbitron',sans-serif;font-size:52px;font-weight:900;color:var(--green);text-shadow:0 0 14px rgba(52,211,153,.7)}
+@keyframes codePop{from{opacity:0;transform:scale(.5)}to{opacity:1;transform:scale(1)}}
+
+/* stickers */
+.develop-wrap{position:relative;width:340px;height:340px;flex-shrink:0}
+.develop-word{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Orbitron',sans-serif;font-size:28px;font-weight:900;color:var(--purple);text-shadow:0 0 30px rgba(167,139,250,.8);letter-spacing:4px;white-space:nowrap}
+.sticker{position:absolute;background:rgba(251,191,36,.15);border:1px solid rgba(251,191,36,.4);border-radius:8px;padding:4px 8px;font-size:11px;font-weight:700;color:var(--amber);animation:stickerPop .5s cubic-bezier(.34,1.56,.64,1) both;white-space:nowrap}
+@keyframes stickerPop{from{opacity:0;transform:scale(0)}to{opacity:1;transform:scale(1)}}
+
+/* chapter card */
+.ch-card{background:rgba(56,189,248,.06);border:1px solid rgba(56,189,248,.2);border-radius:var(--r);padding:16px 24px;max-width:640px;width:100%;text-align:left}
+.ch-card h3{font-family:'Orbitron',sans-serif;font-size:13px;letter-spacing:2px;color:var(--a);margin-bottom:10px}
+.ch-card p{font-size:15px;line-height:1.7;color:var(--text)}
+.ch-card .subject{display:inline-flex;gap:6px;align-items:center;background:rgba(56,189,248,.1);border:1px solid rgba(56,189,248,.2);border-radius:20px;padding:3px 12px;font-size:11px;color:var(--muted);font-family:'Orbitron',sans-serif;margin-bottom:10px}
+
+/* two heroes row */
+.heroes{display:flex;gap:40px;align-items:flex-end;justify-content:center}
+.hero-box{display:flex;flex-direction:column;align-items:center;gap:10px}
+.hero-box .name{font-family:'Orbitron',sans-serif;font-size:11px;letter-spacing:2px;color:var(--muted)}
+
+/* phenomenon box */
+.phenom-box{background:rgba(124,58,237,.1);border:2px solid rgba(124,58,237,.35);border-radius:var(--r);padding:20px 32px;max-width:700px;text-align:center}
+.phenom-box .q{font-size:clamp(24px,2.8vw,38px);font-style:italic;line-height:1.7;color:var(--text)}
+
+/* scan line effect */
+.scanlines{position:fixed;inset:0;z-index:2;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.04) 2px,rgba(0,0,0,.04) 4px)}
+
+/* confetti */
+.cp{position:fixed;width:8px;height:8px;border-radius:2px;pointer-events:none;z-index:9999;animation:cpfall linear forwards}
+@keyframes cpfall{from{transform:translateY(-10px) rotate(0);opacity:1}to{transform:translateY(105vh) rotate(720deg);opacity:0}}
+
+/* ─── SPEAKER NOTES PANEL ───────────────────────────────────────────────────── */
+#notes-panel-x{
+  position:fixed;bottom:0;left:0;right:0;z-index:50;
+  background:rgba(2,11,24,.95);backdrop-filter:blur(16px);
+  border-top:1px solid var(--border);padding:10px 32px;
+  font-size:13px;color:var(--muted);line-height:1.5;
+  transform:translateY(100%);transition:transform .3s;
+  max-height:140px;overflow-y:auto;
+}
+#notes-panel.show{transform:translateY(0)}
+#notes-toggle-x{position:fixed;bottom:72px;right:24px;z-index:100;background:rgba(6,20,40,.9);border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-size:10px;color:var(--muted);font-family:'Orbitron',sans-serif;cursor:pointer;transition:all .2s;letter-spacing:1px}
+#notes-toggle:hover{border-color:var(--a);color:var(--a)}
+</style>
+</head>
+<body>
+<div id="stars-bg"></div>
+<div class="scanlines"></div>
+
+
+<!-- SLIDES ─────────────────────────────────────────────────────────────────── -->
+<div id="deck">
+
+<!-- ─── S1: ЭКСТРЕННЫЙ СИГНАЛ ─── -->
+<div class="slide active" id="s1" data-notes="Дети входят — экран тёмный. Пауза 5 секунд. Потом жмём → и говорим: «Что-то случилось с Технолэндом...»">
+  <div class="city-bg city-dark"></div>
+  <div class="slide-num">01 / 24</div>
+  <div class="alert-ring">🚨</div>
+  <div style="height:30px"></div>
+  <div class="mega" style="color:var(--hot);font-size:clamp(24px,5vw,56px)">ЭКСТРЕННЫЙ СИГНАЛ</div>
+  <div style="height:16px"></div>
+  <div class="sub" style="color:var(--muted)">Входящее сообщение из Технолэнда…</div>
+</div>
+
+<!-- ─── S2: РЭЙ ГОВОРИТ ─── -->
+<div class="slide" id="s2" data-notes="Воспроизвести голос Рэя или прочитать текст выразительно. Красные огни — тревога.">
+  <div class="city-bg city-dark"></div>
+  <div class="slide-num">02 / 24</div>
+  <div class="heroes">
+    <div class="hero-box">
+      <span style="font-size:clamp(70px,10vw,120px);animation:flt 2s ease-in-out infinite alternate;display:block;filter:drop-shadow(0 0 20px rgba(248,113,113,.5))">🤖</span>
+      <div class="name">РЭЙ</div>
+    </div>
+  </div>
+  <div style="height:20px"></div>
+  <div class="speech-bubble">
+    «ВНИМАНИЕ! Я — Робот Рэй. Наш город умирает.<br>
+    Исчезло главное слово — то, без которого мы не можем двигаться вперёд.<br>
+    <strong style="color:var(--a)">Моторы глохнут. Экраны гаснут.</strong>»
+  </div>
+</div>
+
+<!-- ─── S3: БАЙТ И РЭЙ ─── -->
+<div class="slide" id="s3" data-notes="Байт выглядит испуганным, поскуливает. Рэй указывает на зрителей.">
+  <div class="city-bg city-dark"></div>
+  <div class="slide-num">03 / 24</div>
+  <div class="heroes">
+    <div class="hero-box">
+      <span style="font-size:clamp(70px,10vw,110px);animation:flt 1.8s .3s ease-in-out infinite alternate;display:block;filter:drop-shadow(0 0 20px rgba(248,113,113,.4))">🤖</span>
+      <div class="name">РЭЙ</div>
+    </div>
+    <div class="hero-box">
+      <span style="font-size:clamp(60px,8vw,90px);animation:flt 2.2s .1s ease-in-out infinite alternate;display:block;filter:drop-shadow(0 0 16px rgba(251,191,36,.4))">🐕</span>
+      <div class="name">БАЙТ</div>
+    </div>
+  </div>
+  <div style="height:20px"></div>
+  <div class="speech-bubble">
+    «Нам нужны те, кто умеет <strong style="color:var(--amber)">думать, считать</strong> и говорить <strong style="color:var(--green)">по-английски</strong>.<br>
+    Три группы — три части пароля.<br>
+    <strong style="color:var(--a)">Только вместе вы вернёте городу его слово!</strong>»
+  </div>
+</div>
+
+<!-- ─── S4: ТЁМНЫЙ ТЕХНОЛЭНД ─── -->
+<div class="slide" id="s4" data-notes="Показываем тёмный город. Даём детям время осмотреть. Спрашиваем: «Что чувствует Технолэнд?»">
+  <div class="slide-num">04 / 24</div>
+  <div class="label">ТЕХНОЛЭНД СЕЙЧАС</div>
+  <div class="dark-city-wrap" id="dark-city"></div>
+  <div style="height:24px"></div>
+  <div class="mega" style="color:var(--muted);font-size:clamp(18px,3vw,36px)">Огни погасли. Роботы замерли.</div>
+  <div style="height:14px"></div>
+  <div class="sub" style="color:var(--muted)">Городу нужна ваша помощь.</div>
+</div>
+
+<!-- ─── S5: ИССЛЕДОВАТЕЛЬСКИЕ ВОПРОСЫ ─── -->
+<div class="slide" id="s5" data-notes="PhBL-момент! Спросите детей: что вас удивило? что хотите понять? Запишите вопросы на доску или флипчарт.">
+  <div class="slide-num">05 / 24</div>
+  <div class="heroes" style="gap:20px">
+    <div class="hero-box">
+      <span style="font-size:70px;animation:flt 2s ease-in-out infinite alternate;display:block">🤖</span>
+      <div class="name">РЭЙ</div>
+    </div>
+  </div>
+  <div style="height:16px"></div>
+  <div class="phenom-box">
+    <div class="label" style="margin-bottom:12px">ФЕНОМЕН УРОКА</div>
+    <div class="q">«Почему города и люди перестают развиваться — и что им нужно, чтобы снова двигаться вперёд?»</div>
+  </div>
+  <div style="height:20px"></div>
+  <div class="sub" style="color:var(--a)">Что вас удивило? Что хотите понять?</div>
+</div>
+
+<!-- ─── S6: СТАРТ МИССИИ ─── -->
+<div class="slide" id="s6" data-notes="Раздаём планшеты! Группа 1 — group1, Группа 2 — group2, Группа 3 — group3.">
+  <div class="slide-num">06 / 24</div>
+  <div class="heroes">
+    <div class="hero-box">
+      <span style="font-size:90px;animation:flt 1.8s ease-in-out infinite alternate;display:block;filter:drop-shadow(0 0 24px rgba(56,189,248,.7))">🤖</span>
+      <div class="name">РЭЙ</div>
+    </div>
+    <div class="hero-box">
+      <span style="font-size:80px;animation:flt 2.1s .2s ease-in-out infinite alternate;display:block;filter:drop-shadow(0 0 20px rgba(52,211,153,.6))">🐕</span>
+      <div class="name">БАЙТ</div>
+    </div>
+  </div>
+  <div style="height:20px"></div>
+  <div class="mega glow-text" style="font-size:clamp(20px,4vw,48px)">МИССИЯ НАЧАЛАСЬ!</div>
+  <div style="height:12px"></div>
+  <div class="sub">6 испытаний · 6 цифр · 1 код · 3 слова</div>
+  <div style="height:16px"></div>
+
+</div>
+
+<!-- ─── S7: ГЛАВА 1 — МОСТ ─── -->
+<div class="slide" id="s7" data-notes="">
+  <div class="slide-num">07 / 24</div>
+  <div style="display:flex;gap:48px;align-items:center;justify-content:center;width:100%;max-width:1100px">
+    <div class="hero-box" style="flex-shrink:0">
+      <span style="font-size:clamp(90px,12vw,150px);animation:flt 2s ease-in-out infinite alternate;display:block;filter:drop-shadow(0 0 24px rgba(248,113,113,.5))">🤖</span>
+      <div class="name" style="color:var(--a)">РЭЙ</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:16px;flex:1;max-width:680px">
+      <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(56,189,248,.1);border:1px solid rgba(56,189,248,.3);border-radius:20px;padding:6px 18px;font-family:'Orbitron',sans-serif;font-size:14px;letter-spacing:2px;color:var(--a);align-self:flex-start">ГЛАВА 1 · Математика</div>
+      <div style="font-family:'Orbitron',sans-serif;font-size:clamp(26px,4vw,52px);font-weight:900;color:#fff;line-height:1.1">🌉 Логический мост</div>
+      <div style="font-size:clamp(18px,2.2vw,26px);font-style:italic;line-height:1.8;color:var(--text);background:rgba(56,189,248,.04);border-left:3px solid rgba(56,189,248,.3);padding:16px 20px;border-radius:0 12px 12px 0">«Мы добрались до центра города — но мост через пропасть разрушен! Каждая плита держится на числах. Без вашей помощи дорога к серверу закрыта навсегда. Решите задачи — и мост починится!»</div>
+    </div>
+  </div>
+</div>
+
+<div class="slide" id="s8" data-notes="">
+  <div class="slide-num">08 / 24</div>
+  <div style="display:flex;gap:48px;align-items:center;justify-content:center;width:100%;max-width:1100px">
+    <div class="hero-box" style="flex-shrink:0">
+      <span style="font-size:clamp(90px,12vw,150px);animation:flt 2s ease-in-out infinite alternate;display:block;filter:drop-shadow(0 0 24px rgba(52,211,153,.5))">🐕</span>
+      <div class="name" style="color:var(--green)">БАЙТ</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:16px;flex:1;max-width:680px">
+      <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.3);border-radius:20px;padding:6px 18px;font-family:'Orbitron',sans-serif;font-size:14px;letter-spacing:2px;color:var(--green);align-self:flex-start">ГЛАВА 2 · English + Информатика</div>
+      <div style="font-family:'Orbitron',sans-serif;font-size:clamp(26px,4vw,52px);font-weight:900;color:#fff;line-height:1.1">🎨 Робот-художник</div>
+      <div style="font-size:clamp(18px,2.2vw,26px);font-style:italic;line-height:1.8;color:var(--text);background:rgba(56,189,248,.04);border-left:3px solid rgba(52,211,153,.3);padding:16px 20px;border-radius:0 12px 12px 0">«Ав-ав! Жители Технолэнда забыли, как выглядят их помощники! Компьютер нарисует их — но только если получит команды на английском. Игрок 1 читает вслух, остальные рисуют!»</div>
+    </div>
+  </div>
+</div>
+
+<div class="slide" id="s9" data-notes="">
+  <div class="slide-num">09 / 24</div>
+  <div style="display:flex;gap:48px;align-items:center;justify-content:center;width:100%;max-width:1100px">
+    <div class="hero-box" style="flex-shrink:0">
+      <span style="font-size:clamp(90px,12vw,150px);animation:flt 2s ease-in-out infinite alternate;display:block;filter:drop-shadow(0 0 24px rgba(251,191,36,.6))">🤖</span>
+      <div class="name" style="color:var(--amber)">РЭЙ</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:16px;flex:1;max-width:680px">
+      <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.3);border-radius:20px;padding:6px 18px;font-family:'Orbitron',sans-serif;font-size:14px;letter-spacing:2px;color:var(--amber);align-self:flex-start">ГЛАВА 3 · Математика</div>
+      <div style="font-family:'Orbitron',sans-serif;font-size:clamp(26px,4vw,52px);font-weight:900;color:#fff;line-height:1.1">⚡ Энергетический реактор</div>
+      <div style="font-size:clamp(18px,2.2vw,26px);font-style:italic;line-height:1.8;color:var(--text);background:rgba(56,189,248,.04);border-left:3px solid rgba(251,191,36,.3);padding:16px 20px;border-radius:0 12px 12px 0">«Реактор мигает красным! Городской процессор перегревается. Только математика охладит его. Каждый игрок — своя загадка. Найдите неизвестное, и город получит энергию!»</div>
+    </div>
+  </div>
+</div>
+
+<div class="slide" id="s10" data-notes="Все встают! Байт командует — дети повторяют. Можно воспроизвести весёлую музыку.">
+  <div class="slide-num">10 / 24</div>
+  <div class="hero-box" style="margin-bottom:12px">
+    <span style="font-size:clamp(80px,14vw,150px);animation:flt 1s ease-in-out infinite alternate,wiggle 0.5s ease-in-out infinite;display:block;filter:drop-shadow(0 0 30px rgba(52,211,153,.7))">🐕</span>
+    <div class="name" style="color:var(--green)">БАЙТ КОМАНДУЕТ!</div>
+  </div>
+  <div class="mega green-text" style="font-size:clamp(20px,4vw,44px)">ФИЗМИНУТКА!</div>
+  <div style="height:10px"></div>
+  <div class="sub" style="color:var(--green)">«Ав-ав! Двигайся — и думай лучше!<br>Повторяй мои команды по-английски!»</div>
+  <style>@keyframes wiggle{0%,100%{rotate:-5deg}50%{rotate:5deg}}</style>
+</div>
+
+<!-- ─── S11: КОМАНДЫ БАЙТА ─── -->
+<div class="slide" id="s11" data-notes="Показывайте команды одну за другой или все сразу. Байт «показывает» движения.">
+  <div class="slide-num">11 / 24</div>
+  <div style="display:flex;gap:40px;align-items:flex-start;justify-content:center;width:100%;max-width:900px">
+    <div class="hero-box" style="flex-shrink:0">
+      <span style="font-size:80px;animation:flt 1.5s ease-in-out infinite alternate;display:block;filter:drop-shadow(0 0 20px rgba(52,211,153,.6))">🐕</span>
+    </div>
+    <div class="cmd-list">
+      <div class="cmd-row"><span class="cmd-en">Stand up!</span><span class="cmd-ru">Встаньте! ⬆️</span></div>
+      <div class="cmd-row"><span class="cmd-en">Clap your hands!</span><span class="cmd-ru">Похлопайте! 👏</span></div>
+      <div class="cmd-row"><span class="cmd-en">Touch your head!</span><span class="cmd-ru">Потрогайте голову! 👆</span></div>
+      <div class="cmd-row"><span class="cmd-en">Jump up!</span><span class="cmd-ru">Прыгните! 🦘</span></div>
+      <div class="cmd-row"><span class="cmd-en">Turn around!</span><span class="cmd-ru">Повернитесь кругом! 🔄</span></div>
+      <div class="cmd-row"><span class="cmd-en">Wave your hand!</span><span class="cmd-ru">Помашите рукой! 👋</span></div>
+      <div class="cmd-row"><span class="cmd-en">Sit down!</span><span class="cmd-ru">Садитесь! ⬇️</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── S12: ПОСЛЕ ФИЗМИНУТКИ ─── -->
+<div class="slide" id="s12" data-notes="Рэй «перезаряжен» — зелёные глаза. Воодушевляем на последние 3 главы!">
+  <div class="slide-num">12 / 24</div>
+  <div class="heroes">
+    <div class="hero-box">
+      <span style="font-size:90px;animation:flt 1.8s ease-in-out infinite alternate;display:block;filter:drop-shadow(0 0 30px rgba(56,189,248,.8))">🤖</span>
+      <div class="name">РЭЙ</div>
+    </div>
+    <div class="hero-box">
+      <span style="font-size:80px;animation:flt 2s .2s ease-in-out infinite alternate;display:block;filter:drop-shadow(0 0 24px rgba(52,211,153,.7))">🐕</span>
+      <div class="name">БАЙТ</div>
+    </div>
+  </div>
+  <div style="height:16px"></div>
+  <div class="mega glow-text" style="font-size:clamp(20px,3.5vw,44px)">Мозги заряжены! ⚡</div>
+  <div style="height:12px"></div>
+  <div class="sub" style="color:var(--a)">«Последние 3 испытания — самые важные.<br>Вперёд, кибер-спасатели!»</div>
+</div>
+
+<!-- ─── S13: ГЛАВА 4 — АЛГОРИТМ ─── -->
+<div class="slide" id="s13" data-notes="">
+  <div class="slide-num">13 / 24</div>
+  <div style="display:flex;gap:48px;align-items:center;justify-content:center;width:100%;max-width:1100px">
+    <div class="hero-box" style="flex-shrink:0">
+      <span style="font-size:clamp(90px,12vw,150px);animation:flt 2s ease-in-out infinite alternate;display:block;filter:drop-shadow(0 0 24px rgba(167,139,250,.5))">🐕</span>
+      <div class="name" style="color:var(--purple)">БАЙТ</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:16px;flex:1;max-width:680px">
+      <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(167,139,250,.1);border:1px solid rgba(167,139,250,.3);border-radius:20px;padding:6px 18px;font-family:'Orbitron',sans-serif;font-size:14px;letter-spacing:2px;color:var(--purple);align-self:flex-start">ГЛАВА 4 · Информатика + English</div>
+      <div style="font-family:'Orbitron',sans-serif;font-size:clamp(26px,4vw,52px);font-weight:900;color:#fff;line-height:1.1">💻 Алгоритм спасения</div>
+      <div style="font-size:clamp(18px,2.2vw,26px);font-style:italic;line-height:1.8;color:var(--text);background:rgba(56,189,248,.04);border-left:3px solid rgba(167,139,250,.3);padding:16px 20px;border-radius:0 12px 12px 0">«Робот-строитель завис! Алгоритм составлен неправильно — он стоит как вкопанный. Помогите восстановить порядок шагов. Осторожно — все задания на английском языке!»</div>
+    </div>
+  </div>
+</div>
+
+<div class="slide" id="s14" data-notes="">
+  <div class="slide-num">14 / 24</div>
+  <div style="display:flex;gap:48px;align-items:center;justify-content:center;width:100%;max-width:1100px">
+    <div class="hero-box" style="flex-shrink:0">
+      <span style="font-size:clamp(90px,12vw,150px);animation:flt 2s ease-in-out infinite alternate;display:block;filter:drop-shadow(0 0 24px rgba(56,189,248,.6))">🤖</span>
+      <div class="name" style="color:var(--a)">РЭЙ</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:16px;flex:1;max-width:680px">
+      <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(56,189,248,.1);border:1px solid rgba(56,189,248,.3);border-radius:20px;padding:6px 18px;font-family:'Orbitron',sans-serif;font-size:14px;letter-spacing:2px;color:var(--a);align-self:flex-start">ГЛАВА 5 · Информатика</div>
+      <div style="font-family:'Orbitron',sans-serif;font-size:clamp(26px,4vw,52px);font-weight:900;color:#fff;line-height:1.1">🔀 Язык роботов</div>
+      <div style="font-size:clamp(18px,2.2vw,26px);font-style:italic;line-height:1.8;color:var(--text);background:rgba(56,189,248,.04);border-left:3px solid rgba(56,189,248,.3);padding:16px 20px;border-radius:0 12px 12px 0">«Роботы-стражи застыли на развилке — они не знают, какой путь выбрать! Программы содержат условия и циклы, но никто не объяснил им как работать. Разберите алгоритмы!»</div>
+    </div>
+  </div>
+</div>
+
+<div class="slide" id="s15" data-notes="">
+  <div class="slide-num">15 / 24</div>
+  <div style="display:flex;gap:48px;align-items:center;justify-content:center;width:100%;max-width:1100px">
+    <div class="hero-box" style="flex-shrink:0">
+      <span style="font-size:clamp(90px,12vw,150px);animation:flt 2s ease-in-out infinite alternate;display:block;filter:drop-shadow(0 0 24px rgba(251,191,36,.6))">🤖</span>
+      <div class="name" style="color:var(--amber)">РЭЙ</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:16px;flex:1;max-width:680px">
+      <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.3);border-radius:20px;padding:6px 18px;font-family:'Orbitron',sans-serif;font-size:14px;letter-spacing:2px;color:var(--amber);align-self:flex-start">ГЛАВА 6 · Финальный рубеж</div>
+      <div style="font-family:'Orbitron',sans-serif;font-size:clamp(26px,4vw,52px);font-weight:900;color:#fff;line-height:1.1">🏙️ Финальный сигнал</div>
+      <div style="font-size:clamp(18px,2.2vw,26px);font-style:italic;line-height:1.8;color:var(--text);background:rgba(56,189,248,.04);border-left:3px solid rgba(251,191,36,.3);padding:16px 20px;border-radius:0 12px 12px 0">«Вы добрались до главного сервера! Байт дрожит от волнения. Это последнее испытание — когда все три группы справятся, город вспомнит своё слово. Удачи, кибер-спасатели!»</div>
+    </div>
+  </div>
+</div>
+
+<div class="slide" id="s16" data-notes="Группы вводят код на планшетах. Код: 837344. Создаём напряжение — считаем вместе!">
+  <div class="slide-num">16 / 24</div>
+  <div class="label" style="margin-bottom:20px">КОД ОТ ТЕХНОЛЭНДА</div>
+  <div class="code-display">
+    <div class="code-cell lit"><div class="code-n">ГЛ.1</div><div class="code-v">8</div></div>
+    <div class="code-cell lit"><div class="code-n">ГЛ.2</div><div class="code-v">3</div></div>
+    <div class="code-cell lit"><div class="code-n">ГЛ.3</div><div class="code-v">7</div></div>
+    <div class="code-cell lit"><div class="code-n">ГЛ.4</div><div class="code-v">3</div></div>
+    <div class="code-cell lit"><div class="code-n">ГЛ.5</div><div class="code-v">4</div></div>
+    <div class="code-cell lit"><div class="code-n">ГЛ.6</div><div class="code-v">4</div></div>
+  </div>
+  <div style="height:24px"></div>
+  <div class="mega green-text" style="letter-spacing:10px">8 · 3 · 7 · 3 · 4 · 4</div>
+  <div style="height:16px"></div>
+  <div class="heroes">
+    <div class="hero-box">
+      <span style="font-size:50px;animation:flt 1.5s ease-in-out infinite alternate;display:block">🤖</span>
+      <div class="name" style="font-size:9px">КОД ПРИНЯТЬ?</div>
+    </div>
+    <div class="hero-box">
+      <span style="font-size:44px;animation:flt 1.8s .2s ease-in-out infinite alternate;display:block">🐕</span>
+      <div class="name" style="font-size:9px">ЖДЁМ…</div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── S17: ТЕХНОЛЭНД ОЖИВАЕТ ─── -->
+<div class="slide" id="s17" data-notes="Нажимаем на кнопку запуска конфетти! ТРИУМФ! Дети аплодируют.">
+  <div class="slide-num">17 / 24</div>
+  <div class="city-bg"></div>
+  <div class="heroes" style="margin-bottom:16px">
+    <div class="hero-box">
+      <span style="font-size:clamp(60px,10vw,100px);animation:flt 1.5s ease-in-out infinite alternate;display:block;filter:drop-shadow(0 0 30px rgba(56,189,248,.9))">🤖</span>
+      <div class="name" style="color:var(--a)">РЭЙ</div>
+    </div>
+    <div class="hero-box">
+      <span style="font-size:clamp(55px,9vw,90px);animation:flt 1.8s .2s ease-in-out infinite alternate;display:block;filter:drop-shadow(0 0 24px rgba(52,211,153,.8))">🐕</span>
+      <div class="name" style="color:var(--green)">БАЙТ</div>
+    </div>
+  </div>
+  <div class="mega glow-text" style="font-size:clamp(22px,5vw,58px)">КОД ПРИНЯТ!</div>
+  <div style="height:10px"></div>
+  <div class="mega green-text" style="font-size:clamp(18px,4vw,44px)">🏙️✨ ТЕХНОЛЭНД ОЖИВАЕТ!</div>
+  <div style="height:12px"></div>
+  <div class="sub" style="color:var(--a)">«Огни зажглись! Моторы запустились! Вы сделали это!»</div>
+  <button onclick="launchConfetti()" style="margin-top:18px;background:linear-gradient(135deg,var(--a),var(--green));border:none;border-radius:12px;padding:12px 28px;font-family:'Orbitron',sans-serif;font-size:12px;color:#000;font-weight:700;cursor:pointer;letter-spacing:2px">🎉 ЗАПУСТИТЬ КОНФЕТТИ!</button>
+</div>
+
+<!-- ─── S18: ТРИ СЛОВА ─── -->
+<div class="slide" id="s18" data-notes="Группы по очереди подходят к доске и наклеивают свои слова на плакат А3 с городом.">
+  <div class="slide-num">18 / 24</div>
+  <div class="label" style="margin-bottom:20px">СЛОВА ТЕХНОЛЭНДА</div>
+  <div class="word-reveal">
+    <div class="word-card">РАЗВИВАЕМ</div>
+    <div class="word-card">ТЕХНОЛЭНД</div>
+    <div class="word-card">ВМЕСТЕ</div>
+  </div>
+  <div style="height:24px"></div>
+  <div class="sub">Каждая группа наклеивает своё слово на плакат с городом</div>
+  <div style="height:16px"></div>
+  <div class="heroes" style="gap:20px">
+    <span style="font-size:50px">🤖</span>
+    <div class="speech-bubble" style="padding:14px 20px;font-size:15px">
+      «Прочитайте вслух — все вместе!»
+    </div>
+    <span style="font-size:44px">🐕</span>
+  </div>
+</div>
+
+<!-- ─── S19: ПОСЛАНИЕ ─── -->
+<div class="slide" id="s19" data-notes="Пауза. Дайте детям самим осознать эти три слова. Потом учитель говорит о лицее.">
+  <div class="slide-num">19 / 24</div>
+  <div class="city-bg"></div>
+  <div class="heroes" style="margin-bottom:20px">
+    <div class="hero-box">
+      <span style="font-size:70px;animation:flt 2s ease-in-out infinite alternate;display:block;filter:drop-shadow(0 0 28px rgba(56,189,248,.8))">🤖</span>
+    </div>
+    <div class="hero-box">
+      <span style="font-size:62px;animation:flt 2.3s .2s ease-in-out infinite alternate;display:block;filter:drop-shadow(0 0 22px rgba(52,211,153,.7))">🐕</span>
+    </div>
+  </div>
+  <div class="mega" style="font-size:clamp(22px,5vw,56px);background:linear-gradient(135deg,var(--a),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">РАЗВИВАЕМ ТЕХНОЛЭНД ВМЕСТЕ</div>
+  <div style="height:20px"></div>
+  <div class="speech-bubble">«Вы — настоящие кибер-спасатели!<br>Рэй и Байт никогда вас не забудут!»</div>
+</div>
+
+<!-- ─── S20: ТЕХНОЛЭНД = ЛИЦЕЙ ─── -->
+<div class="slide" id="s20" data-notes="PhBL-раскрытие феномена! Учитель говорит: «А вы заметили? Технолэнд — это наш лицей.» Пауза. Дети осознают.">
+  <div class="slide-num">20 / 24</div>
+  <div style="font-size:clamp(60px,10vw,100px);margin-bottom:12px;animation:flt 2s ease-in-out infinite alternate">🏫</div>
+  <div class="phenom-box">
+    <div class="label" style="margin-bottom:14px">РАСКРЫТИЕ ФЕНОМЕНА</div>
+    <div class="q" style="font-size:clamp(16px,2.5vw,24px)">
+      «А вы заметили?<br>
+      <strong style="color:var(--a)">Технолэнд — это наш лицей.</strong><br>
+      Это мы с вами.<br>
+      Мы развиваем его — вместе — каждый день.»
+    </div>
+  </div>
+</div>
+
+<!-- ─── S21: DEVELOP ─── -->
+<div class="slide" id="s21" data-notes="Раздаём стикеры-лампочки. Учитель спрашивает про каждый предмет.">
+  <div class="slide-num">21 / 24</div>
+  <div class="hero-box" style="margin-bottom:16px">
+    <span style="font-size:70px;animation:flt 2s ease-in-out infinite alternate;display:block;filter:drop-shadow(0 0 24px rgba(167,139,250,.6))">🐕</span>
+    <div class="name">БАЙТ</div>
+  </div>
+  <div style="font-family:'Orbitron',sans-serif;font-size:clamp(50px,8vw,110px);font-weight:900;letter-spacing:10px;color:var(--purple);text-shadow:0 0 40px rgba(167,139,250,.6)">DEVELOP</div>
+  <div style="height:20px"></div>
+  <div class="sub" style="color:var(--purple)">«Что нужно, чтобы развиваться?<br>Напишите одно слово на стикере-лампочке!»</div>
+</div>
+
+<!-- ─── S22: СТИКЕРЫ ─── -->
+<div class="slide" id="s22" data-notes="">
+  <div class="slide-num">22 / 24</div>
+  <div class="develop-wrap" style="width:520px;height:520px">
+    <div class="develop-word" style="font-size:clamp(44px,7vw,90px)">DEVELOP</div>
+    <div class="sticker" style="top:6%;left:54%;animation-delay:.1s;font-size:15px;padding:6px 12px">считать</div>
+    <div class="sticker" style="top:16%;left:4%;animation-delay:.2s;font-size:15px;padding:6px 12px">think</div>
+    <div class="sticker" style="top:33%;left:70%;animation-delay:.3s;font-size:15px;padding:6px 12px">рисовать</div>
+    <div class="sticker" style="top:53%;left:58%;animation-delay:.4s;font-size:15px;padding:6px 12px">learn</div>
+    <div class="sticker" style="top:68%;left:6%;animation-delay:.5s;font-size:15px;padding:6px 12px">помогать</div>
+    <div class="sticker" style="top:80%;left:44%;animation-delay:.6s;font-size:15px;padding:6px 12px">code</div>
+    <div class="sticker" style="top:8%;left:28%;animation-delay:.7s;color:var(--green);border-color:rgba(52,211,153,.4);font-size:15px;padding:6px 12px">творить</div>
+    <div class="sticker" style="top:58%;left:22%;animation-delay:.8s;color:var(--a);font-size:15px;padding:6px 12px">speak</div>
+    <div class="sticker" style="top:22%;left:60%;animation-delay:.9s;color:var(--purple);border-color:rgba(167,139,250,.4);font-size:15px;padding:6px 12px">мечтать</div>
+    <div class="sticker" style="top:43%;left:2%;animation-delay:1s;color:var(--amber);border-color:rgba(251,191,36,.4);font-size:15px;padding:6px 12px">решать</div>
+  </div>
+</div>
+
+<div class="slide" id="s23" data-notes="Рэй и Байт смотрят на «солнце» из стикеров. Пусть дети сами скажут — что они написали и почему.">
+  <div class="slide-num">23 / 24</div>
+  <div class="heroes">
+    <div class="hero-box">
+      <span style="font-size:80px;animation:flt 2s ease-in-out infinite alternate;display:block;filter:drop-shadow(0 0 26px rgba(167,139,250,.7))">🤖</span>
+      <div class="name">РЭЙ</div>
+    </div>
+    <div class="hero-box">
+      <span style="font-size:70px;animation:flt 2.3s .2s ease-in-out infinite alternate;display:block;filter:drop-shadow(0 0 22px rgba(251,191,36,.6))">🐕</span>
+      <div class="name">БАЙТ</div>
+    </div>
+  </div>
+  <div style="height:16px"></div>
+  <div class="speech-bubble">«Посмотрите! Слово DEVELOP светится!<br>Каждый ваш стикер — это <strong style="color:var(--amber)">энергия для Технолэнда</strong>.<br>Вы не просто спасли город. Вы сделали его ярче.»</div>
+</div>
+
+<!-- ─── S24: ФИНАЛ ─── -->
+<div class="slide" id="s24" data-notes="Финальный слайд. Учитель произносит финальные слова. Аплодисменты!">
+  <div class="slide-num">24 / 24</div>
+  <div class="city-bg"></div>
+  <div class="heroes" style="margin-bottom:16px">
+    <div class="hero-box">
+      <span style="font-size:clamp(60px,9vw,100px);animation:flt 1.8s ease-in-out infinite alternate;display:block;filter:drop-shadow(0 0 30px rgba(56,189,248,.9))">🤖</span>
+      <div class="name" style="color:var(--a)">РЭЙ</div>
+    </div>
+    <div class="hero-box">
+      <span style="font-size:clamp(55px,8vw,90px);animation:flt 2.1s .2s ease-in-out infinite alternate;display:block;filter:drop-shadow(0 0 24px rgba(52,211,153,.8))">🐕</span>
+      <div class="name" style="color:var(--green)">БАЙТ</div>
+    </div>
+  </div>
+  <div class="mega" style="font-size:clamp(18px,4vw,42px);background:linear-gradient(135deg,var(--a),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:10px">УРОК ОКОНЧЕН!</div>
+  <div class="sub" style="color:var(--amber);font-weight:700;font-size:clamp(16px,3vw,28px)">Вы — настоящие кибер-спасатели! 🚀</div>
+  <div style="height:14px"></div>
+  <div class="mega" style="font-size:clamp(14px,2.5vw,26px);letter-spacing:2px;color:var(--text)">РАЗВИВАЕМ · ТЕХНОЛЭНД · ВМЕСТЕ</div>
+</div>
+
+</div><!-- /deck -->
+
+<!-- NAV -->
+<button class="side-btn" id="nav-prev" onclick="prev()" disabled>‹</button>
+<button class="side-btn" id="nav-next" onclick="next()">›</button>
+<div id="slide-info">1 / 24</div>
+<div id="nav"></div>
+
+<script>
+// ── Stars ────────────────────────────────────────────────────────────────────
+const SE=document.getElementById('stars-bg');
+for(let i=0;i<90;i++){
+  const s=document.createElement('div');s.className='star';
+  const z=Math.random()*2+.3;
+  s.style.cssText=`width:${z}px;height:${z}px;top:${Math.random()*100}%;left:${Math.random()*100}%;animation-duration:${2+Math.random()*5}s;animation-delay:${Math.random()*6}s`;
+  SE.appendChild(s);
+}
+
+// ── Dark city generator ───────────────────────────────────────────────────────
+const DC=document.getElementById('dark-city');
+if(DC){
+  const heights=[120,160,100,180,140,110,170,90,150,130,165,95,145,120];
+  heights.forEach((h,i)=>{
+    const b=document.createElement('div');b.className='city-building';
+    b.style.cssText=`width:${40+Math.random()*30}px;height:${h}px;margin-right:3px`;
+    for(let r=0;r<4;r++)for(let c=0;c<3;c++){
+      const w=document.createElement('div');w.className='city-window';
+      w.style.cssText=`top:${10+r*22}px;left:${6+c*12}px`;
+      b.appendChild(w);
+    }
+    DC.appendChild(b);
+  });
+}
+
+// ── Slide engine ─────────────────────────────────────────────────────────────
+const slides=document.querySelectorAll('.slide');
+const TOTAL=slides.length;
+let cur=0;
+
+
+
+const SKIP=['s11','s18'];
+function goTo(n){if(n<0||n>=TOTAL)return;slides[cur].classList.remove('active');slides[cur].classList.add('exit');setTimeout(()=>slides[cur].classList.remove('exit'),500);cur=n;slides[cur].classList.add('active');updateUI();}
+function next(){let n=cur+1;while(n<TOTAL&&SKIP.includes(slides[n].id))n++;if(n<TOTAL)goTo(n);}
+function prev(){let n=cur-1;while(n>=0&&SKIP.includes(slides[n].id))n--;if(n>=0)goTo(n);}
+
+function updateUI(){const vis=Array.from(slides).filter(s=>!SKIP.includes(s.id));const idx=vis.indexOf(slides[cur]);document.getElementById('slide-info').textContent=`${idx+1} / ${vis.length}`;document.getElementById('nav-prev').disabled=idx===0;document.getElementById('nav-next').disabled=idx===vis.length-1;}
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key===' ')next();
+  if(e.key==='ArrowLeft')prev();
+  
+});
+
+function _noop(){
+  notesOpen=!notesOpen;
+  document.getElementById('notes-panel').classList.toggle('show',notesOpen);
+  document.getElementById('notes-toggle').textContent=notesOpen?'✕ ЗАМЕТКИ':'📝 ЗАМЕТКИ';
+}
+
+// ── Confetti ─────────────────────────────────────────────────────────────────
+function launchConfetti(){
+  const cols=['#38bdf8','#34d399','#f472b6','#fbbf24','#a78bfa','#fff','#f87171'];
+  for(let i=0;i<120;i++)setTimeout(()=>{
+    const c=document.createElement('div');c.className='cp';
+    c.style.cssText=`left:${Math.random()*100}vw;background:${cols[~~(Math.random()*cols.length)]};animation-duration:${1.5+Math.random()*2.5}s;animation-delay:${Math.random()*.5}s`;
+    document.body.appendChild(c);setTimeout(()=>c.remove(),4000);
+  },i*20);
+}
+
+updateUI();
+</script>
+</body>
+</html>
