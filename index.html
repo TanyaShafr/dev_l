@@ -638,68 +638,144 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 <div id="nav"></div>
 
 <script>
-// ── Stars ────────────────────────────────────────────────────────────────────
-const SE=document.getElementById('stars-bg');
-for(let i=0;i<90;i++){
-  const s=document.createElement('div');s.className='star';
-  const z=Math.random()*2+.3;
-  s.style.cssText=`width:${z}px;height:${z}px;top:${Math.random()*100}%;left:${Math.random()*100}%;animation-duration:${2+Math.random()*5}s;animation-delay:${Math.random()*6}s`;
-  SE.appendChild(s);
-}
+// ─── КОНФИГУРАЦИЯ И ПЕРЕМЕННЫЕ ──────────────────────────────────────────────
+const slideElements = document.querySelectorAll('.slide');
+const navPrevBtn = document.getElementById('nav-prev');
+const navNextBtn = document.getElementById('nav-next');
+const slideIndicator = document.getElementById('slide-info');
+const starsContainer = document.getElementById('stars-bg');
+const darkCityContainer = document.getElementById('dark-city');
 
-// ── Dark city generator ───────────────────────────────────────────────────────
-const DC=document.getElementById('dark-city');
-if(DC){
-  const heights=[120,160,100,180,140,110,170,90,150,130,165,95,145,120];
-  heights.forEach((h,i)=>{
-    const b=document.createElement('div');b.className='city-building';
-    b.style.cssText=`width:${40+Math.random()*30}px;height:${h}px;margin-right:3px`;
-    for(let r=0;r<4;r++)for(let c=0;c<3;c++){
-      const w=document.createElement('div');w.className='city-window';
-      w.style.cssText=`top:${10+r*22}px;left:${6+c*12}px`;
-      b.appendChild(w);
-    }
-    DC.appendChild(b);
-  });
-}
+let currentIndex = 0;
+const TOTAL_SLIDES = slideElements.length;
 
-// ── Slide engine ─────────────────────────────────────────────────────────────
-const slides=document.querySelectorAll('.slide');
-const TOTAL=slides.length;
-let cur=0;
+// Список ID слайдов, которые не нужно считать в общем количестве (если нужно)
+const SKIP_IDS = ['s11', 's18']; 
 
-
-
-const SKIP=['s11','s18'];
-function goTo(n){if(n<0||n>=TOTAL)return;slides[cur].classList.remove('active');slides[cur].classList.add('exit');setTimeout(()=>slides[cur].classList.remove('exit'),500);cur=n;slides[cur].classList.add('active');updateUI();}
-function next(){let n=cur+1;while(n<TOTAL&&SKIP.includes(slides[n].id))n++;if(n<TOTAL)goTo(n);}
-function prev(){let n=cur-1;while(n>=0&&SKIP.includes(slides[n].id))n--;if(n>=0)goTo(n);}
-
-function updateUI(){const vis=Array.from(slides).filter(s=>!SKIP.includes(s.id));const idx=vis.indexOf(slides[cur]);document.getElementById('slide-info').textContent=`${idx+1} / ${vis.length}`;document.getElementById('nav-prev').disabled=idx===0;document.getElementById('nav-next').disabled=idx===vis.length-1;}
-
-document.addEventListener('keydown',e=>{
-  if(e.key==='ArrowRight'||e.key===' ')next();
-  if(e.key==='ArrowLeft')prev();
-  
+// ─── ИНИЦИАЛИЗАЦИЯ ──────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+    createStars();
+    if (darkCityContainer) createDarkCity();
+    updateUI();
 });
 
-function _noop(){
-  notesOpen=!notesOpen;
-  document.getElementById('notes-panel').classList.toggle('show',notesOpen);
-  document.getElementById('notes-toggle').textContent=notesOpen?'✕ ЗАМЕТКИ':'📝 ЗАМЕТКИ';
+// ─── ГЕНЕРАЦИЯ ЭФФЕКТОВ ──────────────────────────────────────────────────────
+function createStars() {
+    for (let i = 0; i < 100; i++) {
+        const star = document.createElement('div');
+        star.className = 'star';
+        const size = Math.random() * 2 + 0.5;
+        star.style.width = `${size}px`;
+        star.style.height = `${size}px`;
+        star.style.top = `${Math.random() * 100}%`;
+        star.style.left = `${Math.random() * 100}%`;
+        star.style.animationDuration = `${2 + Math.random() * 5}s`;
+        star.style.animationDelay = `${Math.random() * 6}s`;
+        starsContainer.appendChild(star);
+    }
 }
 
-// ── Confetti ─────────────────────────────────────────────────────────────────
-function launchConfetti(){
-  const cols=['#38bdf8','#34d399','#f472b6','#fbbf24','#a78bfa','#fff','#f87171'];
-  for(let i=0;i<120;i++)setTimeout(()=>{
-    const c=document.createElement('div');c.className='cp';
-    c.style.cssText=`left:${Math.random()*100}vw;background:${cols[~~(Math.random()*cols.length)]};animation-duration:${1.5+Math.random()*2.5}s;animation-delay:${Math.random()*.5}s`;
-    document.body.appendChild(c);setTimeout(()=>c.remove(),4000);
-  },i*20);
+function createDarkCity() {
+    const heights = [120, 160, 100, 180, 140, 110, 170, 90, 150, 130, 165, 95, 145, 120];
+    heights.forEach(h => {
+        const b = document.createElement('div');
+        b.className = 'city-building';
+        b.style.width = `${40 + Math.random() * 30}px`;
+        b.style.height = `${h}px`;
+        b.style.marginRight = '3px';
+        
+        for (let r = 0; r < 3; r++) { // Окна
+            const w = document.createElement('div');
+            w.className = 'city-window';
+            w.style.top = `${10 + r * 25}px`;
+            w.style.left = '10px';
+            b.appendChild(w);
+        }
+        darkCityContainer.appendChild(b);
+    });
 }
 
-updateUI();
+// ─── ЛОГИКА ПЕРЕКЛЮЧЕНИЯ ─────────────────────────────────────────────────────
+function goTo(n) {
+    if (n < 0 || n >= TOTAL_SLIDES) return;
+
+    // 1. Обработка видео на текущем (уходящем) слайде
+    const currentVideo = slideElements[currentIndex].querySelector('video');
+    if (currentVideo) {
+        currentVideo.pause();
+    }
+
+    // 2. Анимация ухода
+    slideElements[currentIndex].classList.remove('active');
+    slideElements[currentIndex].classList.add('exit');
+    
+    // Очистка класса exit после завершения анимации
+    const prevIdx = currentIndex;
+    setTimeout(() => {
+        slideElements[prevIdx].classList.remove('exit');
+    }, 500);
+
+    // 3. Смена индекса
+    currentIndex = n;
+
+    // 4. Анимация входа
+    slideElements[currentIndex].classList.add('active');
+
+    // 5. Обработка видео на новом слайде
+    const nextVideo = slideElements[currentIndex].querySelector('video');
+    if (nextVideo) {
+        nextVideo.currentTime = 0; // Сброс в начало
+        // Пытаемся запустить. Если звук не разрешен, видео просто будет ждать клика
+        const playPromise = nextVideo.play();
+        if (playPromise !== undefined) {
+            playPromise.catch(() => {
+                console.log("Автозапуск видео заблокирован. Требуется клик пользователя.");
+            });
+        }
+    }
+
+    updateUI();
+}
+
+function next() { goTo(currentIndex + 1); }
+function prev() { goTo(currentIndex - 1); }
+
+function updateUI() {
+    // Обновление кнопок
+    navPrevBtn.disabled = currentIndex === 0;
+    navNextBtn.disabled = currentIndex === TOTAL_SLIDES - 1;
+
+    // Обновление счетчика (исключая SKIP_IDS из визуального отображения)
+    const visibleSlides = Array.from(slideElements).filter(s => !SKIP_IDS.includes(s.id));
+    const currentVisibleIndex = visibleSlides.indexOf(slideElements[currentIndex]);
+    
+    if (currentVisibleIndex !== -1) {
+        slideIndicator.textContent = `${currentVisibleIndex + 1} / ${visibleSlides.length}`;
+    }
+}
+
+// ─── УПРАВЛЕНИЕ КЛАВИАТУРОЙ ──────────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === ' ') next();
+    if (e.key === 'ArrowLeft') prev();
+});
+
+// ─── КОНФЕТТИ ────────────────────────────────────────────────────────────────
+function launchConfetti() {
+    const colors = ['#38bdf8', '#34d399', '#f472b6', '#fbbf24', '#a78bfa', '#f87171'];
+    for (let i = 0; i < 100; i++) {
+        setTimeout(() => {
+            const c = document.createElement('div');
+            c.className = 'cp';
+            c.style.left = `${Math.random() * 100}vw`;
+            c.style.background = colors[Math.floor(Math.random() * colors.length)];
+            c.style.animationDuration = `${1.5 + Math.random() * 2}s`;
+            c.style.opacity = Math.random();
+            document.body.appendChild(c);
+            setTimeout(() => c.remove(), 3000);
+        }, i * 15);
+    }
+}
 </script>
 </body>
 </html>
