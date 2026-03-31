@@ -237,20 +237,25 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 </div>
 
 <!-- ─── S2: РЭЙ ГОВОРИТ ─── -->
-<div class="slide" id="s2" data-notes="Воспроизвести голос Рэя или прочитать текст выразительно. Красные огни — тревога.">
+<!-- ─── S2: ВИДЕО-ОБРАЩЕНИЕ РЭЯ (ЗАМЕНЕНО) ─── -->
+<div class="slide" id="s2" data-notes="Видео-сообщение от робота Рэя. Он объясняет ситуацию в городе.">
   <div class="city-bg city-dark"></div>
   <div class="slide-num">02 / 24</div>
-  <div class="heroes">
-    <div class="hero-box">
-      <span style="font-size:clamp(70px,10vw,120px);animation:flt 2s ease-in-out infinite alternate;display:block;filter:drop-shadow(0 0 20px rgba(248,113,113,.5))">🤖</span>
-      <div class="name">РЭЙ</div>
-    </div>
+  
+  <div class="label">Входящий видеосигнал: РЭЙ</div>
+  
+  <div class="video-container">
+    <!-- Замените 'ray-video.mp4' на путь к вашему файлу -->
+    <video id="РЭЙ 1.mp4" playsinline controls>
+      <source src="ray-video.mp4" type="video/mp4">
+      Ваш браузер не поддерживает видео.
+    </video>
+    <div class="video-overlay"></div>
   </div>
+
   <div style="height:20px"></div>
-  <div class="speech-bubble">
-    «ВНИМАНИЕ! Я — Робот Рэй. Наш город умирает.<br>
-    Исчезло главное слово — то, без которого мы не можем двигаться вперёд.<br>
-    <strong style="color:var(--a)">Моторы глохнут. Экраны гаснут.</strong>»
+  <div class="sub" style="font-size: 16px; color: var(--muted)">
+    <span style="color: var(--hot)">● LIVE</span> КАНАЛ СВЯЗИ: ГОРОДСКОЙ СЕРВЕР
   </div>
 </div>
 
